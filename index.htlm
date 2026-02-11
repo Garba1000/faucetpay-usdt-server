@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Radiocash — Listen & Earn</title>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
+
+<!-- AdsGram SDK -->
+<script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+<style>
+:root{
+  --bg:#0b0b0b;
+  --panel:#121212;
+  --muted:#9aa0a6;
+  --accent:#00c853;      /* GREEN BUTTON COLOR */
+  --gold:#ffc107;
+  --glass: rgba(255,255,255,0.03);
+}
+
+*{box-sizing:border-box;font-family:Inter,Roboto,system-ui,-apple-system,Segoe UI,Arial; color:#fff;}
+body{margin:0;background:linear-gradient(180deg,var(--bg),#050505);min-height:100vh;padding:18px;display:flex;flex-direction:column;align-items:center;}
+
+header{width:100%;max-width:980px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+h1{font-size:20px;color:var(--accent);margin:0}
+
+.stats{display:flex;gap:12px}
+.card{background:var(--panel);padding:12px 16px;border-radius:10px;min-width:110px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.5)}
+.card h2{font-size:18px;margin:0;color:var(--gold)}
+.card p{color:var(--muted);font-size:13px;margin:6px 0 0}
+
+main{width:100%;max-width:980px;display:flex;gap:14px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+
+.panel{background:var(--panel);border-radius:12px;padding:16px;width:100%;box-shadow:0 6px 24px rgba(0,0,0,0.6)}
+.left{flex:1;min-width:320px;max-width:620px}
+.right{width:320px;min-width:280px}
+
+.player{display:flex;flex-direction:column;align-items:center;gap:12px;padding:18px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent)}
+.station{font-weight:700;font-size:16px}
+
+.controls{display:flex;align-items:center;gap:12px}
+
+.big-btn{
+  width:72px;height:72px;border-radius:50%;
+  border:none;background:var(--accent);color:#fff;
+  font-size:26px;display:flex;align-items:center;
+  justify-content:center;cursor:pointer;
+}
+
+.status{color:var(--muted);font-size:13px}
+.meta{display:flex;gap:8px;color:var(--muted);font-size:13px;margin-top:6px}
+
+/* Task Area */
+.task-area{margin-top:12px;padding:12px;border-radius:10px;background:var(--glass);border:1px solid rgba(255,255,255,0.02)}
+
+adsgram-task{display:block;margin-top:8px;--adsgram-task-button-width:100%;--adsgram-task-font-size:15px}
+
+.row{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
+
+.btn{
+  padding:10px 12px;border-radius:10px;
+  border:none;cursor:pointer;
+  background:var(--accent);
+  color:#fff;font-weight:600;
+}
+
+.btn.ghost{
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.06);
+  color:#fff;
+}
+
+.compact{padding:12px;border-radius:10px;background:linear-gradient(180deg,#0f0f0f,#0b0b0b)}
+.compact h4{margin:0 0 8px 0;color:var(--gold)}
+.small{font-size:13px;color:var(--muted)}
+
+.drawer{
+  position:fixed;right:18px;bottom:18px;background:var(--panel);
+  padding:14px;border-radius:12px;width:320px;
+  box-shadow:0 10px 40px rgba(0,0,0,0.6);display:none
+}
+
+input, select, textarea{
+  width:100%;padding:8px;border-radius:8px;
+  border:none;background:#0a0a0a;color:#fff;margin-bottom:8px
+}
+
+.requests{max-height:240px;overflow:auto;margin-top:8px;border-top:1px dashed rgba(255,255,255,0.02);padding-top:8px}
+
+footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
+
+.claim-big{
+  display:none;margin-top:12px;padding:14px;border-radius:12px;
+  background:linear-gradient(90deg,var(--accent),#00e676);
+  color:#fff;border:none;font-weight:700;font-size:16px;cursor:pointer
+}
+
+/* Full-page Join Overlay */
+#joinOverlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.95);z-index:9999;
+  display:none;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center
+}
+#joinOverlay button{
+  padding:16px 28px;font-size:18px;
+  font-weight:bold;border:none;border-radius:12px;
+  background:var(--accent);color:#fff;cursor:pointer
+}
+</style>
+</head>
+
+
+
+
+<body>
+
+<header>
+<h1>Radiocash</h1>
+
+<div class="stats">
+  <div class="card">
+    <h2 id="points">0</h2>
+    <p>Points</p>
+  </div>
+
+  <div class="card">
+    <h2 id="earned">$0.000</h2>
+    <p>Earned</p>
+  </div>
+</div>
+</header>
+
+<main>
+
+<!-- LEFT PANEL -->
+<div class="panel left">
+
+  <div class="player">
+    <div class="station">Live Radio — cashearning Stream</div>
+
+    <div class="controls">
+      <button id="playBtn" class="big-btn"><i class="fa fa-play"></i></button>
+
+      <div>
+        <div id="status" class="status">Tap play to start listening</div>
+        <div class="meta">
+          <div class="small">Session: <span id="sessionTime">0s</span></div>
+          <div class="small">Last deduct: <span id="lastDeduct">—</span></div>
+          <div class="small">Rate: $0.02 / 20s</div>
+        </div>
+      </div>
+    </div>
+
+    <audio id="radio" crossorigin="anonymous" preload="none" src=""></audio>
+
+    <!-- TASK BLOCK -->
+    <div class="task-area">
+
+      <strong>Complete tasks to earn rewards</strong>
+      <div class="small">Earn +100 points per task</div>
+
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <button id="taskButton" class="btn">Task & Earn</button>
+        <button id="claimButton" class="btn">Claim Points</button>
+      </div>
+
+      <div id="adsWrapper" style="display:none;margin-top:10px;"></div>
+      <button id="claimButtonBig" class="claim-big">Claim More Points</button>
+
+    </div>
+
+  </div>
+</div>
+
+
+
+<!-- RIGHT PANEL -->
+<div class="panel right">
+
+  <div class="compact">
+    <h4>Your Referral</h4>
+    <div class="small">Your ID: <strong id="userIdDisplay">-</strong></div>
+    <div class="small">Referrer: <strong id="referrerDisplay">-</strong></div>
+  </div>
+
+  <div class="compact" style="margin-top:12px">
+    <h4>Pending Referral Payouts</h4>
+    <div id="refOutbox" class="small muted">No pending payouts.</div>
+  </div>
+
+  <div class="compact" style="margin-top:12px">
+    <div id="requests" class="requests"></div>
+  </div>
+
+</div>
+</main>
+
+
+<footer>
+  <div class="small">Tip: Points are consumed while listening. Complete tasks to top up.</div>
+</footer>
+
+
+
+<!-- JOIN OVERLAY -->
+<div id="joinOverlay">
+  <h2>🚫 You must join our channel to continue</h2>
+  <button onclick="joinAndContinue()">👉 Join Telegram Channel</button>
+</div>
+
+
+
+
+<!-- SCRIPT -->
+<script>
+
+const STREAM_URL = "https://stream-uk1.radioparadise.com/mp3-192";
+const STREAM_API = "https://api.npoint.io/7e5eb0f3e8d2d0c1cb09";
+
+const ADSGRAM_BLOCKS = ["task-21431","task-21432","task-21436","task-21433","task-21434"];
+const POINTS_PER_TASK = 100;
+
+const REQUIRED_TASKS = 4;
+let completedTasks = parseInt(localStorage.getItem("completedTasks") || 0);
+
+const tg = window.Telegram.WebApp;
+
+let points = parseInt(localStorage.getItem("points")||0);
+let earned = parseFloat(localStorage.getItem("earned")||0);
+
+let listeningTimer=null;
+let secondsElapsed=0;
+
+const radio=document.getElementById("radio");
+const playBtn=document.getElementById("playBtn");
+const statusEl=document.getElementById("status");
+const sessionTimeEl=document.getElementById("sessionTime");
+const lastDeductEl=document.getElementById("lastDeduct");
+
+const adsWrapper=document.getElementById("adsWrapper");
+const taskButton=document.getElementById("taskButton");
+const claimButton=document.getElementById("claimButton");
+const claimButtonBig=document.getElementById("claimButtonBig");
+
+const pointsEl=document.getElementById("points");
+const earnedEl=document.getElementById("earned");
+
+function updateUI(){
+  pointsEl.textContent = points;
+  earnedEl.textContent = "$" + earned.toFixed(3);
+  claimButtonBig.style.display = points <= 0 ? "block" : "none";
+}
+
+function saveAll(){
+  localStorage.setItem("points", points);
+  localStorage.setItem("earned", earned);
+}
+
+/* RANDOM ADS BLOCK */
+function getRandomAdsBlock(){
+  return ADSGRAM_BLOCKS[Math.floor(Math.random()*ADSGRAM_BLOCKS.length)];
+}
+
+/* CREATE ADSGRAM TASK */
+function createAdsTask(){
+  adsWrapper.innerHTML="";
+
+  const el=document.createElement("adsgram-task");
+  el.setAttribute("data-block-id", getRandomAdsBlock());
+
+  el.addEventListener("reward", () => {
+
+    completedTasks++;
+    localStorage.setItem("completedTasks", completedTasks);
+
+    points += POINTS_PER_TASK;
+    saveAll();
+    updateUI();
+
+    adsWrapper.style.display="none";
+    statusEl.textContent=`🎉 Task complete (${completedTasks}/${REQUIRED_TASKS})`;
+
+    updateTaskGate();
+  });
+
+  adsWrapper.appendChild(el);
+  adsWrapper.style.display="block";
+
+  if (typeof el.load === "function") el.load();
+}
+
+/* ASSIGN EVENTS */
+taskButton.onclick = createAdsTask;
+claimButton.onclick = createAdsTask;
+claimButtonBig.onclick = createAdsTask;
+
+
+/* --- LISTEN TO SONG BUTTON --- */
+const listenBtn=document.createElement("button");
+listenBtn.textContent="🎵 Listen To Song & Earn";
+listenBtn.className="btn";
+listenBtn.style.display="none";
+listenBtn.style.marginTop="12px";
+document.querySelector(".task-area").appendChild(listenBtn);
+
+
+/* TASK GATE */
+function updateTaskGate(){
+  listenBtn.style.display = completedTasks >= REQUIRED_TASKS ? "block" : "none";
+}
+updateTaskGate();
+
+
+
+/* RANDOM SONG */
+async function getRandomSong(){
+  let res=await fetch(STREAM_API);
+  let data=await res.json();
+  return data[Math.floor(Math.random()*data.length)];
+}
+
+
+/* LISTENING REWARD */
+let songAudio = new Audio();
+
+listenBtn.onclick = async () => {
+  let song = await getRandomSong();
+  if (!song) return;
+
+  statusEl.textContent = "🎵 Loading song...";
+  songAudio.src = song.url;
+  songAudio.play();
+
+  statusEl.textContent="🎶 Listening for 30 seconds...";
+  let left = 30;
+
+  let t=setInterval(()=>{
+    left--;
+    statusEl.textContent=`🎶 Listening... (${left}s)`;
+
+    if(left<=0){
+      clearInterval(t);
+      songAudio.pause();
+
+      statusEl.textContent="✅ Done! Tap Claim";
+
+      showSongClaim();
+    }
+  },1000);
+};
+
+
+/* CLAIM 100 POINTS */
+function showSongClaim(){
+  const btn=document.createElement("button");
+  btn.textContent="🎁 Claim 100 Points";
+  btn.className="btn";
+  btn.style.width="100%";
+  btn.style.marginTop="10px";
+
+  document.querySelector(".task-area").appendChild(btn);
+
+  btn.onclick=()=>{
+    points+=100;
+    saveAll();
+    updateUI();
+    btn.remove();
+    statusEl.textContent="🎉 +100 Points added!";
+  };
+}
+
+
+/* PLAY RADIO */
+playBtn.onclick = () => {
+  if(radio.paused){
+    radio.src=STREAM_URL;
+    radio.play();
+    statusEl.textContent="🎧 Listening...";
+
+  } else {
+    radio.pause();
+    statusEl.textContent="⏸️ Paused";
+  }
+};
+
+
+
+/* JOIN OVERLAY + PRELOAD AD */
+document.addEventListener("DOMContentLoaded", () => {
+  const rewardAd=window.Adsgram.init({blockId:"21429"});
+
+  rewardAd.show().then(res=>{
+    document.getElementById("joinOverlay").style.display="flex";
+  })
+  .catch(()=>{
+    document.getElementById("joinOverlay").style.display="flex";
+  });
+});
+
+
+function joinAndContinue(){
+  window.open("https://t.me/Konnetearnchannel", "_blank");
+  document.getElementById("joinOverlay").style.display="none";
+}
+
+
+updateUI();
+
+</script>
+
+</body>
+</html>
