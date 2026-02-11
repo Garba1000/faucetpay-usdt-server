@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Radiocash — Play & Earn Games</title>
+<title>GameHub — Play & Earn</title>
 
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"/>
@@ -17,67 +17,109 @@
   --bg:#0b0b0b;
   --panel:#121212;
   --muted:#9aa0a6;
-  --accent:#007bff; /* changed to blue */
+  --accent:#ff3b30;
   --gold:#ffc107;
   --glass: rgba(255,255,255,0.03);
 }
 *{box-sizing:border-box;font-family:Inter,Roboto,system-ui,-apple-system,Segoe UI,Arial; color:#fff;}
 body{margin:0;background:linear-gradient(180deg,var(--bg),#050505);min-height:100vh;padding:18px;display:flex;flex-direction:column;align-items:center;}
 header{width:100%;max-width:980px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-h1{font-size:20px;color:var(--accent);margin:0}
+h1{font-size:22px;color:var(--accent);margin:0}
 .stats{display:flex;gap:12px}
 .card{background:var(--panel);padding:12px 16px;border-radius:10px;min-width:110px;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,0.5)}
 .card h2{font-size:18px;margin:0;color:var(--gold)}
 .card p{color:var(--muted);font-size:13px;margin:6px 0 0}
 main{width:100%;max-width:980px;display:flex;gap:14px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
 .panel{background:var(--panel);border-radius:12px;padding:16px;width:100%;box-shadow:0 6px 24px rgba(0,0,0,0.6)}
-.left{flex:1;min-width:320px;max-width:620px;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.left{flex:1;min-width:320px;max-width:620px}
 .right{width:320px;min-width:280px}
-.btn{padding:10px 12px;border-radius:10px;border:none;cursor:pointer;background:var(--accent);color:#fff;}
+.task-area{margin-top:12px;padding:12px;border-radius:10px;background:var(--glass);border:1px solid rgba(255,255,255,0.02)}
+.row{display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap}
+.btn{padding:10px 12px;border-radius:10px;border:none;cursor:pointer}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)}
 .compact{padding:12px;border-radius:10px;background:linear-gradient(180deg,#0f0f0f,#0b0b0b)}
 .compact h4{margin:0 0 8px 0;color:var(--gold)}
 .small{font-size:13px;color:var(--muted)}
+.drawer{position:fixed;right:18px;bottom:18px;background:var(--panel);padding:14px;border-radius:12px;width:320px;box-shadow:0 10px 40px rgba(0,0,0,0.6);display:none}
+input, select, textarea{width:100%;padding:8px;border-radius:8px;border:none;background:#0a0a0a;color:#fff;margin-bottom:8px}
 .requests{max-height:240px;overflow:auto;margin-top:8px;border-top:1px dashed rgba(255,255,255,0.02);padding-top:8px}
-.notification{
-  position:fixed;top:18px;right:18px;padding:12px 18px;border-radius:10px;color:#fff;font-weight:700;z-index:9999;
-  opacity:0;transition:0.5s;pointer-events:none;
-}
-.notification.show{opacity:1;}
-.notification.win{background:green;}
-.notification.lose{background:red;}
-iframe.gameFrame{width:100%;height:520px;border:none;border-radius:12px;}
 footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
+.claim-big{display:none;margin-top:12px;padding:14px;border-radius:12px;background:linear-gradient(90deg,var(--accent),#ff5a4b);color:#fff;border:none;font-weight:700;font-size:16px;cursor:pointer}
+@media (max-width:900px){main{flex-direction:column;align-items:center} .right{width:100%;max-width:520px}}
+
+/* Full-page Join Overlay */
+#joinOverlay {
+  position:fixed;
+  top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.95);
+  z-index:9999;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+#joinOverlay button{
+  padding:16px 28px;
+  font-size:18px;
+  font-weight:bold;
+  border:none;
+  border-radius:12px;
+  background:var(--accent);
+  color:#fff;
+  cursor:pointer;
+}
+
+/* Stylish Game Buttons */
+.btn.game {
+  background: linear-gradient(90deg, #ff6b00, #ff3b30);
+  color: #fff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn.game i {
+  font-size: 18px;
+}
+.btn.game:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255,107,0,0.5);
+}
 </style>
 </head>
 <body>
-
 <header>
-<h1>Radiocash — Play & Earn</h1>
+<h1>GameHub — Play & Earn</h1>
 <div class="stats">
   <div class="card"><h2 id="points">0</h2><p>Points</p></div>
-  <div class="card"><h2 id="earned">$0.00</h2><p>Earned</p></div>
+  <div class="card"><h2 id="earned">$0.000</h2><p>Earned</p></div>
 </div>
 </header>
 
 <main>
-<div class="panel left" id="gameArea">
-  <div id="gameFrameWrapper" style="width:100%;text-align:center;">
-    <p style="color:#aaa;">Select a game from the right panel to start playing!</p>
+<div class="panel left">
+  <div class="task-area">
+      <strong>Choose a game to play</strong>
+      <div class="row">
+        <button id="playWhot" class="btn game"><i class="fa fa-club"></i> Play Nigerian Whot</button>
+        <button id="playLudo" class="btn game"><i class="fa fa-dice"></i> Play Nigerian Ludo</button>
+      </div>
+
+      <div style="margin-top:12px">
+        <button id="taskButton" class="btn primary">Task & Earn Points</button>
+        <button id="claimButton" class="btn primary">Claim Points</button>
+      </div>
+
+      <div id="adsWrapper" style="display:none; margin-top:10px;"></div>
+      <button id="claimButtonBig" class="claim-big">Claim More Points</button>
   </div>
-  <div style="margin-top:12px;display:flex;gap:8px;justify-content:center;">
-    <button id="iWonBtn" class="btn" style="display:none;">🎉 I Won</button>
-  </div>
-  <div id="adsTaskWrapper" style="margin-top:12px;display:none"></div>
 </div>
 
 <div class="panel right">
   <div class="compact">
-    <h4>Play Games (Nigeria)</h4>
-    <button style="width:100%;margin-top:8px" onclick="startGame('whot')">🎴 Play Nigeria Whot</button>
-    <button style="width:100%;margin-top:8px" onclick="startGame('ludo')">🎲 Play Nigeria Ludo</button>
-  </div>
-
-  <div class="compact" style="margin-top:12px">
     <h4>Your Referral</h4>
     <div class="small">Your ID: <strong id="userIdDisplay">-</strong></div>
     <div class="small">Referrer: <strong id="referrerDisplay">-</strong></div>
@@ -91,29 +133,18 @@ footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
     <div id="refOutbox" class="small muted">No pending referral payouts yet.</div>
   </div>
 
-  <div class="compact" style="margin-top:12px" id="adsButtonsWrapper"></div>
-
   <div class="compact" style="margin-top:12px">
     <div id="requests" class="requests"></div>
   </div>
-
-  <button id="withdrawOpen" class="btn" style="margin-top:12px;width:100%">💰 Withdraw</button>
 </div>
 </main>
 
-<footer><div class="small">Tip: Use points to play games. Complete tasks to earn rewards!</div></footer>
+<footer><div class="small">Tip: Play games and complete tasks to earn points and withdraw.</div></footer>
 
-<!-- Notifications -->
-<div id="notification" class="notification"></div>
-
-<!-- Baby fail laugh -->
-<audio id="laughSound" src="https://www.myinstants.com/media/sounds/baby-laugh.mp3" preload="auto"></audio>
-
-<!-- Withdraw Drawer -->
-<div class="panel" id="drawer" style="display:none;position:fixed;right:18px;bottom:18px;width:320px;z-index:999;background:var(--panel);padding:12px;border-radius:12px;">
+<div class="drawer" id="drawer">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
     <strong>Withdraw (min $10)</strong>
-    <button id="closeDrawer" class="btn" style="background:red;">✖</button>
+    <button id="closeDrawer" class="btn ghost"><i class="fa fa-xmark"></i></button>
   </div>
 
   <label>Amount (USD)</label>
@@ -131,157 +162,72 @@ footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
   <textarea id="wdDetails" rows="3" placeholder="e.g., PAYEER_EMAIL or USDT address"></textarea>
 
   <div style="display:flex;gap:8px;margin-top:8px">
-    <button id="submitWd" class="btn">Send Request</button>
-    <button id="cancelWd" class="btn" style="background:red;">Cancel</button>
+    <button id="submitWd" class="btn primary">Send Request</button>
+    <button id="cancelWd" class="btn ghost">Cancel</button>
   </div>
 </div>
 
 <!-- FULL PAGE JOIN OVERLAY -->
-<div id="joinOverlay" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);align-items:center;justify-content:center;flex-direction:column;z-index:9999;display:none;">
+<div id="joinOverlay">
   <h2 style="margin-bottom:16px;">🚫 You must join our channel to continue</h2>
-  <button onclick="joinAndContinue()" class="btn">👉 Join Telegram Channel</button>
+  <button onclick="joinAndContinue()">👉 Join Telegram Channel</button>
 </div>
 
 <script>
+const ADSGRAM_BLOCKS = ["task-21431","task-21432","task-21436"];
+const POINTS_PER_TASK = 100;
 const tg = window.Telegram.WebApp;
-let points = parseInt(localStorage.getItem("points")||500);
-let earned = parseFloat(localStorage.getItem("earned")||0);
 
-const POINTS_PER_GAME = 100;
-const REQUIRED_TASKS = 4;
-const ADSGRAM_BLOCKS = ["task-21431","task-21432","task-21436","task-21433","task-21434"];
-const ADS_REWARD = 50;
+let points = parseInt(localStorage.getItem("points")||0);
+let earned = parseFloat(localStorage.getItem("earned")||0);
 
 const pointsEl=document.getElementById("points");
 const earnedEl=document.getElementById("earned");
-const gameFrameWrapper=document.getElementById("gameFrameWrapper");
-const iWonBtn=document.getElementById("iWonBtn");
-const notificationEl=document.getElementById("notification");
-const adsTaskWrapper=document.getElementById("adsTaskWrapper");
-const withdrawOpen=document.getElementById("withdrawOpen");
-const drawer=document.getElementById("drawer");
-const closeDrawer=document.getElementById("closeDrawer");
-const cancelWd=document.getElementById("cancelWd");
-const submitWd=document.getElementById("submitWd");
-const laughSound=document.getElementById("laughSound");
+const adsWrapper=document.getElementById("adsWrapper");
+const taskButton=document.getElementById("taskButton");
+const claimButton=document.getElementById("claimButton");
+const claimButtonBig=document.getElementById("claimButtonBig");
 
-let tasksCompleted = 0;
-
-function saveAll(){
-  localStorage.setItem("points",points);
-  localStorage.setItem("earned",earned);
-  updateUI();
-}
-
-function updateUI(){
-  pointsEl.textContent=points;
-  earnedEl.textContent="$"+earned.toFixed(2);
-}
-
-function showNotification(msg,type){
-  notificationEl.textContent = msg;
-  notificationEl.className = "notification show "+type;
-  setTimeout(()=>{notificationEl.className="notification";},3000);
-}
-
-function getRandomAdsBlock(){
-  return ADSGRAM_BLOCKS[Math.floor(Math.random()*ADSGRAM_BLOCKS.length)];
-}
-
-function createAdsTask(buttonId){
-  const blockId = getRandomAdsBlock();
-  const el = document.createElement("adsgram-task");
-  el.setAttribute("data-block-id", blockId);
+function updateUI(){pointsEl.textContent=points;earnedEl.textContent="$"+earned.toFixed(3);claimButtonBig.style.display=points<=0?"block":"none";}
+function saveAll(){localStorage.setItem("points",points);localStorage.setItem("earned",earned);}
+function getRandomAdsBlock(){return ADSGRAM_BLOCKS[Math.floor(Math.random()*ADSGRAM_BLOCKS.length)];}
+function createAdsTask(){
+  adsWrapper.innerHTML="";
+  const el=document.createElement("adsgram-task");
+  el.setAttribute("data-block-id",getRandomAdsBlock());
   el.className="task";
   el.addEventListener("reward",()=>{
-    tasksCompleted++;
-    showNotification(`✅ Task ${tasksCompleted}/4 completed!`, "win");
-    if(tasksCompleted >= REQUIRED_TASKS){
-      // reward user
-      earned += 0.05;
-      saveAll();
-      showNotification("🏆 You completed 4 tasks! Reward added $0.05", "win");
-      adsTaskWrapper.innerHTML = "";
-      iWonBtn.style.display = "none";
-    }
+    points+=POINTS_PER_TASK;
+    saveAll();
+    updateUI();
+    adsWrapper.style.display="none";
+    alert("✅ +100 points earned!");
   });
-  adsTaskWrapper.appendChild(el);
-  if(typeof el.load === "function") el.load();
+  adsWrapper.appendChild(el);
+  adsWrapper.style.display="block";
+  if(typeof el.load==="function") el.load();
 }
+taskButton.addEventListener("click",createAdsTask);
+claimButton.addEventListener("click",createAdsTask);
 
-// Start Game Function
-function startGame(game){
-  if(points < POINTS_PER_GAME){
-    showNotification("❌ Not enough points!", "lose");
-    return;
-  }
-  points -= POINTS_PER_GAME;
-  saveAll();
-  tasksCompleted = 0;
-  adsTaskWrapper.innerHTML = "";
-
-  let url = "";
-  if(game==="whot") url = "https://naiijawhot.com/?embed=true";
-  if(game==="ludo") url = "https://ludonaira.com/?embed=true";
-
-  gameFrameWrapper.innerHTML = `<iframe class="gameFrame" src="${url}"></iframe>`;
-  iWonBtn.style.display = "inline-block";
-}
-
-// I Won Button
-iWonBtn.addEventListener("click",()=>{
-  adsTaskWrapper.style.display="block";
-  adsTaskWrapper.innerHTML = "";
-  showNotification("Complete 4/5 tasks to get your reward!", "win");
-  // create 5 tasks
-  for(let i=0;i<5;i++){
-    createAdsTask();
-  }
+document.getElementById("playWhot").addEventListener("click",()=>{
+  window.open("https://playnigerianwhot.com","_blank");
+});
+document.getElementById("playLudo").addEventListener("click",()=>{
+  window.open("https://playnigerianludo.com","_blank");
 });
 
-// Withdraw Drawer
-withdrawOpen.addEventListener("click",()=>drawer.style.display="block");
-closeDrawer.addEventListener("click",()=>drawer.style.display="none");
-cancelWd.addEventListener("click",()=>drawer.style.display="none");
-submitWd.addEventListener("click",()=>{
-  const amount=parseFloat(document.getElementById("wdAmount").value);
-  const method=document.getElementById("wdMethod").value;
-  const details=document.getElementById("wdDetails").value.trim();
-  if(!amount||amount<10)return tg.showAlert("❌ Minimum withdraw is $10.");
-  if(amount>earned)return tg.showAlert(`❌ You only have $${earned.toFixed(3)} available.`);
-  if(!details)return tg.showAlert("❌ Please enter your wallet or account.");
-  earned-=amount;
-  saveAll();
-  const msg=`📤 *Withdraw Request*\n👤 User ID: ${tg.initDataUnsafe?.user?.id}\n💵 Amount: $${amount}\n🏦 Method: ${method.toUpperCase()}\n🔗 Wallet/Account: ${details}\n💰 Remaining Balance: $${earned.toFixed(3)}`;
-  Api.sendMessage({chat_id:6136849497,text:msg,parse_mode:"Markdown"});
-  tg.showAlert("✅ Withdraw request sent!");
-  drawer.style.display="none";
-});
-
-// Join Overlay
 function joinAndContinue(){
   window.open("https://t.me/Konnetearnchannel","_blank");
   if(!localStorage.getItem("joinedRewardGiven")){
     points+=10;
     saveAll();
+    updateUI();
     localStorage.setItem("joinedRewardGiven","yes");
     alert("🎉 Thanks for joining! +10 points");
   }
   document.getElementById("joinOverlay").style.display="none";
 }
-
-// AdsGram reward every 1 minute
-setInterval(()=>{
-  const blockId = getRandomAdsBlock();
-  const ad = window.Adsgram.init({blockId:blockId});
-  ad.show().then(res=>{
-    if(res.done){
-      points += ADS_REWARD;
-      saveAll();
-      showNotification("+50 points from AdsGram", "win");
-    }
-  }).catch(err=>console.log(err));
-},60000);
 
 updateUI();
 </script>
