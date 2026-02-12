@@ -50,11 +50,7 @@ input, select, textarea{width:100%;padding:8px;border-radius:8px;border:none;bac
 .requests{max-height:240px;overflow:auto;margin-top:8px;border-top:1px dashed rgba(255,255,255,0.02);padding-top:8px}
 footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
 .claim-big{display:none;margin-top:12px;padding:14px;border-radius:12px;background:linear-gradient(90deg,var(--accent),#0056b3);color:#fff;border:none;font-weight:700;font-size:16px;cursor:pointer}
-
-@media (max-width:900px){
-  main{flex-direction:column;align-items:center}
-  .right{width:100%;max-width:520px}
-}
+@media (max-width:900px){main{flex-direction:column;align-items:center} .right{width:100%;max-width:520px}}
 
 #joinOverlay {
   position:fixed; top:0; left:0; width:100%; height:100%;
@@ -68,7 +64,6 @@ footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
 </style>
 </head>
 <body>
-
 <header>
 <h1>Radiocash</h1>
 <div class="stats">
@@ -80,7 +75,6 @@ footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
 <main>
 <div class="panel left">
   <div class="task-area">
-
     <div style="display:flex;align-items:center;justify-content:space-between">
       <div>
         <strong>Complete tasks to earn rewards</strong>
@@ -163,9 +157,9 @@ footer{margin-top:20px;color:var(--muted);font-size:13px;text-align:center}
 </div>
 
 <script>
-const ADSGRAM_BLOCKS=["task-22811","task-22812","task-22813","task-22814","task-22815","task-22816"];
+const ADSGRAM_BLOCKS=["task-22811","task-22812","task-22813","task-22814","task-22830","task-22831"];
 const POINTS_PER_TASK=100;
-const CONVERT_RATE=0.0002;
+const CONVERT_RATE=0.0002; // 1 point = $0.0002
 
 const tg=window.Telegram.WebApp;
 let points=parseInt(localStorage.getItem("points")||0);
@@ -225,31 +219,22 @@ taskButton.addEventListener("click",createAdsTask);
 claimButton.addEventListener("click",createAdsTask);
 claimButtonBig.addEventListener("click",createAdsTask);
 
-/* AUTO REWARD AD BEFORE OPENING ANY GAME */
+/* 👉👉 UPDATED: auto convert ONLY when clicking a game */
 gameButtons.forEach(btn=>{
   btn.addEventListener("click",()=>{
 
-    /* reward ad automatically loads here */
-    const rewardAd = window.Adsgram.init({ blockId: "22799" });
-    rewardAd.show().then(res=>{
-      if(res.done){
-        earned += 0.00001;
-        saveAll();
-        updateUI();
-      }
-    }).catch(err=>console.log(err));
-
     if(points>0){
-      earned += points * CONVERT_RATE;
+      earned += points * CONVERT_RATE; // 100pts = $0.02
       points = 0;
-      saveAll(); updateUI();
+      saveAll();
+      updateUI();
     }
 
     const gameKey=btn.dataset.game;
     gameFrame.src=GAME_LINKS[gameKey];
     gameFrame.style.display="block";
 
-    earned+=0.00001;
+    earned+=0.00001; 
     saveAll(); updateUI();
 
     tg.showAlert(`🎉 ${btn.textContent} opened! $0.00001 added.`);
